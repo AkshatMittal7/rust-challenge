@@ -1,0 +1,8 @@
+/Users/akshatmittal/rust-challenge/akshat_rust_challenge/hyperlane_cli/target/debug/deps/libscale_info_derive-bd3282b5351ba08c.dylib: /Users/akshatmittal/.cargo/registry/src/index.crates.io-6f17d22bba15001f/scale-info-derive-2.11.3/src/lib.rs /Users/akshatmittal/.cargo/registry/src/index.crates.io-6f17d22bba15001f/scale-info-derive-2.11.3/src/attr.rs /Users/akshatmittal/.cargo/registry/src/index.crates.io-6f17d22bba15001f/scale-info-derive-2.11.3/src/trait_bounds.rs /Users/akshatmittal/.cargo/registry/src/index.crates.io-6f17d22bba15001f/scale-info-derive-2.11.3/src/utils.rs
+
+/Users/akshatmittal/rust-challenge/akshat_rust_challenge/hyperlane_cli/target/debug/deps/scale_info_derive-bd3282b5351ba08c.d: /Users/akshatmittal/.cargo/registry/src/index.crates.io-6f17d22bba15001f/scale-info-derive-2.11.3/src/lib.rs /Users/akshatmittal/.cargo/registry/src/index.crates.io-6f17d22bba15001f/scale-info-derive-2.11.3/src/attr.rs /Users/akshatmittal/.cargo/registry/src/index.crates.io-6f17d22bba15001f/scale-info-derive-2.11.3/src/trait_bounds.rs /Users/akshatmittal/.cargo/registry/src/index.crates.io-6f17d22bba15001f/scale-info-derive-2.11.3/src/utils.rs
+
+/Users/akshatmittal/.cargo/registry/src/index.crates.io-6f17d22bba15001f/scale-info-derive-2.11.3/src/lib.rs:
+/Users/akshatmittal/.cargo/registry/src/index.crates.io-6f17d22bba15001f/scale-info-derive-2.11.3/src/attr.rs:
+/Users/akshatmittal/.cargo/registry/src/index.crates.io-6f17d22bba15001f/scale-info-derive-2.11.3/src/trait_bounds.rs:
+/Users/akshatmittal/.cargo/registry/src/index.crates.io-6f17d22bba15001f/scale-info-derive-2.11.3/src/utils.rs:
