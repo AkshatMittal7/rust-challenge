@@ -35,7 +35,7 @@ async fn main() {
                 .arg(
                     Arg::new("message_bytes")
                         .required(true)
-                        .help("The message bytes"),
+                        .help("The message bytes (hex encoded)"),
                 ),
         )
         .subcommand(
@@ -68,6 +68,10 @@ async fn main() {
         println!("Destination Address: {}", destination_address);
         println!("Message Bytes: {}", message_bytes);
 
+        // Print the arguments to ensure they are parsed correctly
+        println!("Parsed arguments: origin_chain={}, mailbox_address={}, rpc_url={}, destination_address={}, message_bytes={}",
+            origin_chain, mailbox_address, rpc_url, destination_address, message_bytes);
+
         // Call the function to send a message
         if let Err(e) = send_message(mailbox_address, rpc_url, destination_address, message_bytes).await {
             eprintln!("Error sending message: {}", e);
@@ -89,52 +93,95 @@ async fn main() {
 
 async fn send_message(mailbox_address: &str, rpc_url: &str, destination_address: &str, message_bytes: &str) -> Result<(), Box<dyn std::error::Error>> {
     // Initialize the Ethereum provider
-    let provider = Provider::<Http>::try_from(rpc_url)?;
+    println!("Initializing Ethereum provider...");
+    let provider = match Provider::<Http>::try_from(rpc_url) {
+        Ok(provider) => provider,
+        Err(e) => {
+            eprintln!("Failed to initialize provider: {}", e);
+            return Err(Box::new(e));
+        }
+    };
 
     // Load the private key
-    let private_key = "mour_private_key";  // Make sure to replace this with your actual private key
-    let wallet: LocalWallet = private_key.parse()?;
+    println!("Loading private key...");
+    let private_key = "0x96fd32b1facd7d859dc3c6dfaa730694ea34c00741f2729a5df236233788077d";
+    let wallet: LocalWallet = match private_key.parse() {
+        Ok(wallet) => wallet,
+        Err(e) => {
+            eprintln!("Failed to parse private key: {}", e);
+            return Err(Box::new(e));
+        }
+    };
     let client = SignerMiddleware::new(provider, wallet.clone());
 
     // Interact with the Mailbox contract to send the message
-    let mailbox: Address = mailbox_address.parse()?;
-    let _destination: Address = destination_address.parse()?;  // Prefix with underscore to suppress unused variable warning
-    let data = decode(message_bytes)?;
+    println!("Parsing mailbox address...");
+    let mailbox: Address = match mailbox_address.parse() {
+        Ok(addr) => addr,
+        Err(e) => {
+            eprintln!("Failed to parse mailbox address: {}", e);
+            return Err(Box::new(e));
+        }
+    };
 
+    println!("Parsing destination address...");
+    let _destination: Address = match destination_address.parse() {
+        Ok(addr) => addr,
+        Err(e) => {
+            eprintln!("Failed to parse destination address: {}", e);
+            return Err(Box::new(e));
+        }
+    };
+
+    // Decode the message bytes independently
+    println!("Decoding message bytes...");
+    let data = match decode(message_bytes) {
+        Ok(d) => {
+            println!("Decoded message bytes: {:?}", d);
+            d
+        }
+        Err(e) => {
+            eprintln!("Failed to decode message bytes: {}", e);
+            return Err(Box::new(e));
+        }
+    };
+
+    println!("Creating transaction request...");
     let tx: TransactionRequest = TransactionRequest::new()
         .to(mailbox)
         .data(data)
         .from(wallet.address())
         .into();
 
-    let pending_tx = client.send_transaction(tx, None).await?;
-    let receipt = pending_tx.await?;
+    println!("Sending transaction...");
+    let pending_tx = match client.send_transaction(tx, None).await {
+        Ok(tx) => tx,
+        Err(e) => {
+            eprintln!("Failed to send transaction: {}", e);
+            return Err(Box::new(e));
+        }
+    };
+
+    println!("Awaiting transaction receipt...");
+    let receipt = match pending_tx.await {
+        Ok(receipt) => receipt,
+        Err(e) => {
+            eprintln!("Failed to get transaction receipt: {}", e);
+            return Err(Box::new(e));
+        }
+    };
 
     println!("Message sent with transaction hash: {:?}", receipt.unwrap().transaction_hash);
     Ok(())
 }
 
-async fn query_messages(chain: &str, matching_list: &str) -> Result<(), Box<dyn std::error::Error>> {
-    // Initialize the Ethereum provider
-    let rpc_url = "rpc_url_for_chain";  // Replace with the actual RPC URL for the chain
-    let provider = Provider::<Http>::try_from(rpc_url)?;
-
-    // Define the Mailbox contract address and the event signature
-    let mailbox_address: Address = "mailbox_contract_address".parse()?;  // Replace with actual contract address
-    let event_signature = "event_signature";  // Replace with actual event signature
-
-    // Fetch events from the Mailbox contract
-    let filter = Filter::new()
-        .address(mailbox_address)
-        .event(event_signature);
-
-    let logs = provider.get_logs(&filter).await?;
-
-    // Filter logs based on the MatchingList
-    for log in logs {
-        // Implement filtering logic based on matching_list
-        println!("Log: {:?}", log);
-    }
-
+async fn query_messages(_chain: &str, _matching_list: &str) -> Result<(), Box<dyn std::error::Error>> {
+    // Implement the logic to query messages from the blockchain
+    // Example: Fetch events from the Mailbox contract and filter based on the MatchingList
+    println!("Querying messages for chain: {} with matching list: {}", _chain, _matching_list);
+    // TODO: Implement the query logic
     Ok(())
 }
+
+//0x4ac7A40722277121045B119b81AC69AC8577319b
+//cargo run -- send origin_chain 0x4ac7A40722277121045B119b81AC69AC8577319b http://127.0.0.1:8545 0x5AD9E93A5eE9F33cc4c4d94e1a186f61D7e1CB35 68656c6c6f20776f726c64
