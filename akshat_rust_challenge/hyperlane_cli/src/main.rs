@@ -104,7 +104,8 @@ async fn send_message(mailbox_address: &str, rpc_url: &str, destination_address:
 
     // Load the private key
     println!("Loading private key...");
-    let private_key = "0x96fd32b1facd7d859dc3c6dfaa730694ea34c00741f2729a5df236233788077d";
+    //needs to be changed everytime ganache cli is run
+    let private_key = "0xf81806b2f5fd83c65863bed904a0b16d237fc1812158a4369c43db248d6617a4";
     let wallet: LocalWallet = match private_key.parse() {
         Ok(wallet) => wallet,
         Err(e) => {
@@ -175,13 +176,38 @@ async fn send_message(mailbox_address: &str, rpc_url: &str, destination_address:
     Ok(())
 }
 
-async fn query_messages(_chain: &str, _matching_list: &str) -> Result<(), Box<dyn std::error::Error>> {
-    // Implement the logic to query messages from the blockchain
-    // Example: Fetch events from the Mailbox contract and filter based on the MatchingList
-    println!("Querying messages for chain: {} with matching list: {}", _chain, _matching_list);
-    // TODO: Implement the query logic
+async fn query_messages(chain: &str, matching_list: &str) -> Result<(), Box<dyn std::error::Error>> {
+    // Initialize the Ethereum provider
+    println!("Initializing Ethereum provider for query...");
+    let rpc_url = "http://127.0.0.1:8545";  // Use the same local Ganache RPC URL or appropriate testnet RPC URL
+    let provider = Provider::<Http>::try_from(rpc_url)?;
+
+    // Define the Mailbox contract address and the event signature
+    let mailbox_address: Address = "0xf4Fbad2417d53957e40F2f7A3868eB5DbF837f6b".parse()?;  // Use the same mailbox address as in the send function
+    let event_signature = "0x12345678...";  // Replace with actual event signature
+
+    // Create a filter for the logs
+    let filter = Filter::new()
+        .address(mailbox_address)
+        .event(event_signature);
+
+    // Fetch logs from the provider
+    println!("Fetching logs...");
+    let logs = provider.get_logs(&filter).await?;
+
+    // Filter logs based on the matching list (implement your matching logic)
+    println!("Filtering logs...");
+    for log in logs {
+        // Implement filtering logic based on matching_list
+        println!("Log: {:?}", log);
+    }
+
     Ok(())
 }
 
 //0x4ac7A40722277121045B119b81AC69AC8577319b
 //cargo run -- send origin_chain 0x4ac7A40722277121045B119b81AC69AC8577319b http://127.0.0.1:8545 0x5AD9E93A5eE9F33cc4c4d94e1a186f61D7e1CB35 68656c6c6f20776f726c64
+
+
+//available account: 0xf4Fbad2417d53957e40F2f7A3868eB5DbF837f6b, 0x1436334d4F16270763E1eC4662Ff0d5FE80A813e
+//cargo run -- send origin_chain 0xf4Fbad2417d53957e40F2f7A3868eB5DbF837f6b http://127.0.0.1:8545 0x1436334d4F16270763E1eC4662Ff0d5FE80A813e 68656c6c6f20776f726c64
